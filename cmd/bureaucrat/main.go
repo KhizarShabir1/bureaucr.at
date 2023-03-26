@@ -12,10 +12,10 @@ import (
 func main() {
 
 	// Create a sample organization chart
-
-	ceo := &employee.Employee{ID: 1, Name: "Khizar"}
+	ceo := &employee.Employee{ID: 1, Name: "Claire"}
 	manager1 := &employee.Employee{ID: 2, Name: "Manager 1", Manager: ceo}
 	manager2 := &employee.Employee{ID: 3, Name: "Manager 2", Manager: ceo}
+
 	employee1 := &employee.Employee{ID: 4, Name: "Employeee 1", Manager: manager1}
 	employee2 := &employee.Employee{ID: 5, Name: "Employeee 2", Manager: manager1}
 	employee3 := &employee.Employee{ID: 6, Name: "Employeee 3", Manager: manager2}
@@ -30,7 +30,7 @@ func main() {
 
 	//pasring command line argguments
 	if len(os.Args) < 3 {
-		fmt.Println("Usage: find-manager employee-id-1 employee-id-2")
+		fmt.Println("Usage: cmd/bureaucrat/main.go employee-id-1 employee-id-2")
 		os.Exit(1)
 	}
 
@@ -46,4 +46,30 @@ func main() {
 		os.Exit(1)
 	}
 	// use these two ids to find the employees
+	emp1 := findEmployeeById(ceo, id1)
+	emp2 := findEmployeeById(ceo, id2)
+
+	manager := org.FindClosestCommonManager(emp1, emp2)
+
+	if manager != nil {
+		fmt.Println("Closest common manager is,", manager.Name)
+	} else {
+		fmt.Println("No common manager found")
+	}
+}
+
+func findEmployeeById(root *employee.Employee, id int) *employee.Employee {
+	if root == nil {
+		return nil
+	}
+	if root.ID == id {
+		return root
+	}
+	for _, report := range root.DirectReports {
+		result := findEmployeeById(report, id)
+		if result != nil {
+			return result
+		}
+	}
+	return nil
 }
